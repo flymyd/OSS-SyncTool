@@ -39,6 +39,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const [form] = Form.useForm()
   const [workspaceForm] = Form.useForm()
   const navigate = useNavigate()
+  const [selectedKey, setSelectedKey] = useState('home')
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -63,6 +64,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
       const response = await createWorkspace(values)
       localStorage.setItem('currentWorkspace', response.name)
       setCurrentWorkspace(response.name)
+      setSelectedKey('home')
       
       message.success('工作区创建成功')
       setIsWorkspaceModalVisible(false)
@@ -76,6 +78,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const handleWorkspaceSelect = (workspace: string) => {
     localStorage.setItem('currentWorkspace', workspace)
     setCurrentWorkspace(workspace)
+    setSelectedKey('home')
     message.success('工作区切换成功')
     navigate('/dashboard/home')
   }
@@ -118,6 +121,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
     })) as MenuProps['items']
 
   const handleMenuClick = (key: string) => {
+    setSelectedKey(key)
     if (key !== 'createWorkspace') {
       navigate(`/dashboard/${key}`)
     }
@@ -163,7 +167,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['home']}
+          selectedKeys={[selectedKey]}
           items={menuItems}
           onClick={({ key }) => handleMenuClick(key)}
         />
