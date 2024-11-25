@@ -1,11 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom'
+import {Suspense, useEffect, useState} from 'react'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import './reset.css'
 import './App.css'
-import { Suspense } from 'react'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)

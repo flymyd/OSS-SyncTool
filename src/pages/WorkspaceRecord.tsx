@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { Layout, Tree, Card, Button, Modal, Space, message, Typography, Input, Spin, Select } from 'antd'
-import type { GetProps, TreeDataNode } from 'antd'
-import { FolderOutlined, FileOutlined } from '@ant-design/icons'
+import React, {useEffect, useMemo, useState} from 'react'
+import type {GetProps, TreeDataNode} from 'antd'
+import {Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography} from 'antd'
+import {FileOutlined, FolderOutlined} from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { generateMockFileTree } from '../mocks/fileTreeData'
-import type { FileInfo } from '../types/workspace'
+import {generateMockFileTree} from '../mocks/fileTreeData'
+import type {FileInfo} from '../types/workspace'
 
 const { DirectoryTree } = Tree
 const { Sider, Content } = Layout
@@ -33,14 +33,14 @@ const formatFileSize = (bytes: number): string => {
 }
 
 const FileCard: React.FC<FileCardProps> = ({ file }) => (
-  <Card 
+  <Card
     title={
       <Space>
         <FileOutlined />
         {file.name}
       </Space>
     }
-    size="small" 
+    size="small"
     style={{ marginBottom: 8 }}
   >
     <p>文件大小：{formatFileSize(file.size)}</p>
@@ -50,14 +50,14 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => (
 )
 
 const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
-  <Card 
+  <Card
     title={
       <Space>
         <FolderOutlined />
         {file.name}
       </Space>
     }
-    size="small" 
+    size="small"
     style={{ marginBottom: 8 }}
   >
     {file.children?.map(child => (
@@ -170,6 +170,7 @@ const WorkspaceRecord: React.FC = () => {
       onOk: async () => {
         try {
           setLoading(true)
+          console.log(selectedKeys)
           // 模拟同步操作
           await new Promise(resolve => setTimeout(resolve, 2000))
           message.success(`同步到${env === 'test' ? '测试' : '生产'}环境成功`)
@@ -185,7 +186,7 @@ const WorkspaceRecord: React.FC = () => {
   // 选择节点时更新选中状态
   const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
     setSelectedKeys(keys as string[])
-    
+
     // 根据选中的key查找对应的节点信息
     const findNodes = (data: FileInfo[], keys: string[]): FileInfo[] => {
       const result: FileInfo[] = []
@@ -202,7 +203,7 @@ const WorkspaceRecord: React.FC = () => {
       traverse(originalData)
       return result
     }
-    
+
     setSelectedNodes(findNodes(originalData, keys as string[]))
   }
 
@@ -263,7 +264,7 @@ const WorkspaceRecord: React.FC = () => {
               {selectedNodes.filter(n => n.isDirectory).length} 个目录）
             </Title>
             {selectedNodes.map(node => (
-              node.isDirectory ? 
+              node.isDirectory ?
                 <DirectoryCard key={node.path} file={node} /> :
                 <FileCard key={node.path} file={node} />
             ))}
@@ -274,4 +275,4 @@ const WorkspaceRecord: React.FC = () => {
   )
 }
 
-export default WorkspaceRecord 
+export default WorkspaceRecord

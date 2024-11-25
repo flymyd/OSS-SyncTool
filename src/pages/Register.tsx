@@ -1,7 +1,7 @@
-import { Form, Input, Button, Card, message } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
-import { Link, useNavigate } from 'react-router-dom'
-import { register } from '../services/auth'
+import {Button, Card, Form, Input, message} from 'antd'
+import {LockOutlined, UserOutlined} from '@ant-design/icons'
+import {Link, useNavigate} from 'react-router-dom'
+import {register} from '../services/auth'
 
 function Register() {
   const navigate = useNavigate()
@@ -17,11 +17,11 @@ function Register() {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh' 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh'
     }}>
       <Card title="注册" style={{ width: 300 }}>
         <Form
@@ -71,4 +71,4 @@ function Register() {
   )
 }
 
-export default Register 
+export default Register

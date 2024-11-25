@@ -1,9 +1,9 @@
-import { Form, Input, Button, Card, message } from 'antd'
-import { UserOutlined, LockOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
-import { login } from '../services/auth'
-import { useDispatch } from 'react-redux';
-import { setAuth } from '../store/slices/authSlice';
+import {Button, Card, Form, Input, message} from 'antd'
+import {LockOutlined, UserOutlined} from '@ant-design/icons'
+import {Link} from 'react-router-dom'
+import {login} from '../services/auth'
+import {useDispatch} from 'react-redux';
+import {setAuth} from '../store/slices/authSlice';
 
 interface LoginProps {
   setIsAuthenticated: (value: boolean) => void
@@ -16,12 +16,12 @@ function Login({ setIsAuthenticated }: LoginProps) {
     try {
       const response = await login(values)
       localStorage.setItem('token', response.token)
-      
+
       dispatch(setAuth({
         username: response.username,
         userId: response.userId,
       }));
-      
+
       setIsAuthenticated(true)
       message.success('登录成功')
     } catch (error) {
@@ -30,11 +30,11 @@ function Login({ setIsAuthenticated }: LoginProps) {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh' 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh'
     }}>
       <Card title="登录" style={{ width: 300 }}>
         <Form
@@ -67,4 +67,4 @@ function Login({ setIsAuthenticated }: LoginProps) {
   )
 }
 
-export default Login 
+export default Login

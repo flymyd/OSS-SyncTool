@@ -1,4 +1,5 @@
 import Crypto from '@/utils/crypto/crypto.js';
+
 (function() {
 
   // Shortcut

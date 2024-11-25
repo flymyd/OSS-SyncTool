@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { message } from 'antd';
+import {message} from 'antd';
 
 const request = axios.create({
 //   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
@@ -30,4 +30,4 @@ request.interceptors.response.use(
   }
 );
 
-export default request; 
+export default request;

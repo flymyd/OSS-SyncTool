@@ -1,6 +1,13 @@
-import { lazy } from 'react'
-import { HomeOutlined, AppstoreOutlined, UserOutlined, UploadOutlined, SettingOutlined, FileTextOutlined } from '@ant-design/icons'
-import type { RouteObject } from 'react-router-dom'
+import {lazy} from 'react'
+import {
+  AppstoreOutlined,
+  FileTextOutlined,
+  HomeOutlined,
+  SettingOutlined,
+  UploadOutlined,
+  UserOutlined
+} from '@ant-design/icons'
+import type {RouteObject} from 'react-router-dom'
 
 const Home = lazy(() => import('../pages/Home'))
 const WorkspaceList = lazy(() => import('../pages/WorkspaceList'))
@@ -85,4 +92,4 @@ export const createDashboardRoutes = (props: {
             hideInMenu: true
         }
     ] as AppRoute[]
-} 
+}

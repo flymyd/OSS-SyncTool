@@ -1,5 +1,5 @@
-import { Empty, Button } from 'antd'
-import { PlusOutlined } from '@ant-design/icons'
+import {Button, Empty} from 'antd'
+import {PlusOutlined} from '@ant-design/icons'
 
 interface HomeProps {
   onCreateWorkspace: () => void
@@ -29,4 +29,4 @@ function Home({ onCreateWorkspace, currentWorkspace }: HomeProps) {
   )
 }
 
-export default Home 
+export default Home

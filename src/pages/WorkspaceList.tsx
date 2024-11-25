@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Table, message, Button, Modal, Space } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { getWorkspaces, deleteWorkspace, Workspace } from '../services/workspace';
-import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
+import {useEffect, useState} from 'react';
+import {Button, message, Modal, Space, Table} from 'antd';
+import type {ColumnsType} from 'antd/es/table';
+import {ExclamationCircleOutlined} from '@ant-design/icons';
+import {deleteWorkspace, getWorkspaces, Workspace} from '../services/workspace';
+import {useSelector} from 'react-redux';
+import type {RootState} from '../store';
 
 interface WorkspaceListProps {
   onWorkspaceSelect: (workspace: string) => void;
@@ -69,16 +69,16 @@ function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
       key: 'action',
       render: (_, record) => (
         <Space>
-          <Button 
-            type="link" 
+          <Button
+            type="link"
             onClick={() => onWorkspaceSelect(record.name)}
           >
             切换
           </Button>
           {record.creator.id === currentUserId && (
-            <Button 
-              type="link" 
-              danger 
+            <Button
+              type="link"
+              danger
               onClick={() => handleDelete(record)}
             >
               删除
@@ -103,4 +103,4 @@ function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
   );
 }
 
-export default WorkspaceList; 
+export default WorkspaceList;

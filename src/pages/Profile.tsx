@@ -1,5 +1,5 @@
-import { Card, Descriptions, Button, message } from 'antd'
-import { UserOutlined, MailOutlined, PhoneOutlined } from '@ant-design/icons'
+import {Button, Card, Descriptions, message} from 'antd'
+import {MailOutlined, PhoneOutlined, UserOutlined} from '@ant-design/icons'
 
 function Profile() {
   // 模拟用户数据，实际应从API获取
@@ -46,4 +46,4 @@ function Profile() {
   )
 }
 
-export default Profile 
+export default Profile

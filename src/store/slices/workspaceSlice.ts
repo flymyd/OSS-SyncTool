@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 interface WorkspaceState {
   currentWorkspace: string | null;
@@ -22,4 +22,4 @@ const workspaceSlice = createSlice({
 });
 
 export const { setCurrentWorkspace, clearWorkspaceState } = workspaceSlice.actions;
-export default workspaceSlice.reducer; 
+export default workspaceSlice.reducer;

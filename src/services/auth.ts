@@ -16,9 +16,20 @@ export interface ChangePasswordParams {
   newPassword: string;
 }
 
-export const login = (data: LoginParams): Promise<LoginResponse> => {
-  return request.post('/user/login', data);
-};
+export const login = async (values: { username: string; password: string }) => {
+  try {
+    const response = await request.post('/user/login', values)
+    console.log(response)
+    // 保存用户信息到本地存储
+    localStorage.setItem('token', response.token)
+    localStorage.setItem('userId', response.userId)
+    localStorage.setItem('username', response.username)
+    localStorage.setItem('currentWorkspace', '新工作区')
+    return response
+  } catch (error) {
+    throw error
+  }
+}
 
 export const register = (data: LoginParams) => {
   return request.post('/user/register', data);

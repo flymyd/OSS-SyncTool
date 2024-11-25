@@ -1,6 +1,6 @@
-import { Card, Form, Input, Button, Switch, InputNumber, message } from 'antd'
-import { SaveOutlined } from '@ant-design/icons'
-import { useEffect } from 'react'
+import {Button, Card, Form, Input, InputNumber, message, Switch} from 'antd'
+import {SaveOutlined} from '@ant-design/icons'
+import {useEffect} from 'react'
 
 function Settings() {
   const [form] = Form.useForm()
@@ -31,10 +31,10 @@ function Settings() {
 
   return (
     <div>
-      <Card 
-        title="OSS 配置" 
-        extra={currentWorkspace === '新工作区' ? 
-          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> : 
+      <Card
+        title="OSS 配置"
+        extra={currentWorkspace === '新工作区' ?
+          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> :
           <span>当前工作区：{currentWorkspace}</span>
         }
       >
@@ -45,7 +45,6 @@ function Settings() {
             accessKeyId: '',
             accessKeySecret: '',
             bucket: '',
-            region: '',
             autoSync: false,
             syncInterval: 5
           }}
@@ -76,14 +75,6 @@ function Settings() {
           </Form.Item>
 
           <Form.Item
-            label="Region"
-            name="region"
-            rules={[{ required: true, message: '请输入 Region' }]}
-          >
-            <Input placeholder="例如：oss-cn-hangzhou" />
-          </Form.Item>
-
-          <Form.Item
             label="自动同步"
             name="autoSync"
             valuePropName="checked"
@@ -95,7 +86,7 @@ function Settings() {
             noStyle
             shouldUpdate={(prevValues, currentValues) => prevValues.autoSync !== currentValues.autoSync}
           >
-            {({ getFieldValue }) => 
+            {({ getFieldValue }) =>
               getFieldValue('autoSync') ? (
                 <Form.Item
                   label="同步间隔（分钟）"
@@ -109,9 +100,9 @@ function Settings() {
           </Form.Item>
 
           <Form.Item>
-            <Button 
-              type="primary" 
-              icon={<SaveOutlined />} 
+            <Button
+              type="primary"
+              icon={<SaveOutlined />}
               htmlType="submit"
               disabled={!currentWorkspace || currentWorkspace === '新工作区'}
             >
@@ -124,4 +115,4 @@ function Settings() {
   )
 }
 
-export default Settings 
+export default Settings

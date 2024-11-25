@@ -1,7 +1,7 @@
-import { Upload as AntUpload, Button, Card, Table, message } from 'antd'
-import { UploadOutlined, InboxOutlined } from '@ant-design/icons'
-import type { UploadProps } from 'antd'
-import { useState } from 'react'
+import type {UploadProps} from 'antd'
+import {Card, message, Table, Upload as AntUpload} from 'antd'
+import {InboxOutlined} from '@ant-design/icons'
+import {useState} from 'react'
 
 const { Dragger } = AntUpload
 
@@ -30,7 +30,7 @@ function Upload() {
         size: formatFileSize(file.size || 0),
         uploadTime: new Date().toLocaleString()
       }))
-      
+
       setFileList(newFileList)
 
       if (status === 'done') {
@@ -82,11 +82,11 @@ function Upload() {
 
   return (
     <div>
-      <Card 
-        title="文件上传" 
+      <Card
+        title="文件上传"
         style={{ marginBottom: 24 }}
-        extra={currentWorkspace === '新工作区' ? 
-          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> : 
+        extra={currentWorkspace === '新工作区' ?
+          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> :
           <span>当前工作区：{currentWorkspace}</span>
         }
       >
@@ -102,8 +102,8 @@ function Upload() {
       </Card>
 
       <Card title="上传历史">
-        <Table 
-          columns={columns} 
+        <Table
+          columns={columns}
           dataSource={fileList}
           rowKey={record => record.uid || record.name}
           pagination={{
@@ -116,4 +116,4 @@ function Upload() {
   )
 }
 
-export default Upload 
+export default Upload

@@ -1,28 +1,20 @@
-import Home from './Home'
 import WorkspaceList from './WorkspaceList'
-import Profile from './Profile'
-import Upload from './Upload'
-import Settings from './Settings' 
 
-import { useState, useEffect, Suspense } from 'react'
-import { Layout, Menu, Button, Dropdown, Modal, Form, Input, message } from 'antd'
+import {Suspense, useState} from 'react'
+import type {MenuProps} from 'antd'
+import {Button, Dropdown, Form, Input, Layout, Menu, message, Modal} from 'antd'
 import {
+  LockOutlined,
+  LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined,
-  UploadOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-  LockOutlined,
   PlusOutlined,
-  HomeOutlined,
-  AppstoreOutlined
+  UserOutlined
 } from '@ant-design/icons'
-import { Routes, Route, useNavigate } from 'react-router-dom'
-import type { MenuProps } from 'antd'
-import { createDashboardRoutes } from '../routes'
-import { changePassword } from '../services/auth'
-import { createWorkspace } from '../services/workspace'
+import {Route, Routes, useNavigate} from 'react-router-dom'
+import {createDashboardRoutes} from '../routes'
+import {changePassword} from '../services/auth'
+import {createWorkspace} from '../services/workspace'
 
 const { Header, Sider, Content } = Layout
 
@@ -42,7 +34,22 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const [selectedKey, setSelectedKey] = useState('home')
 
   const handleLogout = () => {
+    // 清除所有用户相关的本地存储
     localStorage.removeItem('token')
+    localStorage.removeItem('userId')
+    localStorage.removeItem('username')
+    localStorage.removeItem('currentWorkspace')
+
+    // 清除所有工作区相关的配置
+    const keys = Object.keys(localStorage)
+    keys.forEach(key => {
+      if (key.startsWith('oss-config-')) {
+        localStorage.removeItem(key)
+      }
+    })
+
+    setCurrentWorkspace('新工作区')
+    setSelectedKey('home')
     setIsAuthenticated(false)
     navigate('/login')
   }
@@ -65,7 +72,7 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
       localStorage.setItem('currentWorkspace', response.name)
       setCurrentWorkspace(response.name)
       setSelectedKey('home')
-      
+
       message.success('工作区创建成功')
       setIsWorkspaceModalVisible(false)
       workspaceForm.resetFields()
@@ -130,9 +137,9 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div style={{ 
-          height: 32, 
-          margin: 16, 
+        <div style={{
+          height: 32,
+          margin: 16,
           background: 'rgba(255, 255, 255, 0.2)',
           color: '#fff',
           display: 'flex',
@@ -313,4 +320,4 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   )
 }
 
-export default Dashboard 
+export default Dashboard

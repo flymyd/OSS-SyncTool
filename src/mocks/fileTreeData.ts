@@ -1,4 +1,4 @@
-import { FileInfo } from '../types/workspace'
+import {FileInfo} from '../types/workspace'
 
 export const generateMockFileTree = (): FileInfo[] => {
   return [
@@ -199,4 +199,4 @@ export const generateMockFileTree = (): FileInfo[] => {
       isDirectory: false,
     }
   ]
-} 
+}

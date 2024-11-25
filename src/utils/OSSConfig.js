@@ -1,9 +1,8 @@
 import Crypto from '@/utils/crypto/crypto.js';
 import '@/utils/crypto/hmac.js';
 import '@/utils/crypto/sha1.js';
-import {
-  Base64
-} from '@/utils/crypto/base64.js';
+import {Base64} from '@/utils/crypto/base64.js';
+
 export function getConfigByHost(osshost) {
   return new Promise((resolve, reject) => {
     let date = new Date()
