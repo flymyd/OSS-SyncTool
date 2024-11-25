@@ -7,13 +7,14 @@ import {useSelector} from 'react-redux';
 import type {RootState} from '../store';
 
 interface WorkspaceListProps {
-  onWorkspaceSelect: (workspace: string) => void;
+  onWorkspaceSelect: (workspace: { name: string; id: number }) => void;
 }
 
 function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [loading, setLoading] = useState(false);
   const currentUserId = useSelector((state: RootState) => state.auth.userId);
+  const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId);
 
   const fetchWorkspaces = async () => {
     try {
@@ -69,12 +70,18 @@ function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
       key: 'action',
       render: (_, record) => (
         <Space>
-          <Button
-            type="link"
-            onClick={() => onWorkspaceSelect(record.name)}
-          >
-            切换
-          </Button>
+          {record.id === currentWorkspaceId ? (
+            <Button type="text" disabled>
+              当前工作区
+            </Button>
+          ) : (
+            <Button
+              type="link"
+              onClick={() => onWorkspaceSelect({ name: record.name, id: record.id })}
+            >
+              切换
+            </Button>
+          )}
           {record.creator.id === currentUserId && (
             <Button
               type="link"

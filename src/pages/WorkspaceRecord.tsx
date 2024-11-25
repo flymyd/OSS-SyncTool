@@ -1,10 +1,13 @@
-import React, {useEffect, useMemo, useState} from 'react'
-import type {GetProps, TreeDataNode} from 'antd'
-import {Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography} from 'antd'
-import {FileOutlined, FolderOutlined} from '@ant-design/icons'
+import React, { useEffect, useMemo, useState } from 'react'
+import type { GetProps, TreeDataNode } from 'antd'
+import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography } from 'antd'
+import { FileOutlined, FolderOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import {generateMockFileTree} from '../mocks/fileTreeData'
-import type {FileInfo} from '../types/workspace'
+import { workspaceRecordApi } from '../services/workspace-record'
+import type { FileInfo } from '../types/workspace'
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import type { RootState } from '../store';
 
 const { DirectoryTree } = Tree
 const { Sider, Content } = Layout
@@ -83,13 +86,16 @@ const convertToTreeData = (files: FileInfo[]): TreeDataNode[] => {
 }
 
 const WorkspaceRecord: React.FC = () => {
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
-  const [selectedNodes, setSelectedNodes] = useState<FileInfo[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [searchValue, setSearchValue] = useState('')
-  const [sortBy, setSortBy] = useState<'name' | 'size' | 'modifiedTime'>('name')
-  const [originalData, setOriginalData] = useState<FileInfo[]>([])
+  const navigate = useNavigate();
+  const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId);
+  
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<FileInfo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searchValue, setSearchValue] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'size' | 'modifiedTime'>('name');
+  const [originalData, setOriginalData] = useState<FileInfo[]>([]);
 
   // 搜索过滤函数
   const filterTreeData = (data: FileInfo[], searchText: string): FileInfo[] => {
@@ -145,27 +151,32 @@ const WorkspaceRecord: React.FC = () => {
   // 获取文件树数据
   useEffect(() => {
     const fetchFileTree = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const mockData = generateMockFileTree()
-        setOriginalData(mockData)
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '未知错误')
-        message.error('加载文件列表失败')
-      } finally {
-        setLoading(false)
+      if (!currentWorkspaceId) {
+        message.warning('请先选择工作区');
+        navigate('/dashboard/workspaces');
+        return;
       }
-    }
+      
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await workspaceRecordApi.getFileTree(currentWorkspaceId);
+        setOriginalData(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '未知错误');
+        message.error('加载文件列表失败');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    fetchFileTree()
-  }, [])
+    fetchFileTree();
+  }, [currentWorkspaceId, navigate]);
 
   // 同步到目标环境
-  const handleSync = async (env: 'test' | 'prod') => {
+  const handleSync = async (env: 'dev' | 'test' | 'prod') => {
     Modal.confirm({
-      title: `确认同步到${env === 'test' ? '测试' : '生产'}环境？`,
+      title: `确认同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境？`,
       content: '此操作将同步所选文件到目标环境，请确认。',
       onOk: async () => {
         try {
@@ -173,7 +184,7 @@ const WorkspaceRecord: React.FC = () => {
           console.log(selectedKeys)
           // 模拟同步操作
           await new Promise(resolve => setTimeout(resolve, 2000))
-          message.success(`同步到${env === 'test' ? '测试' : '生产'}环境成功`)
+          message.success(`同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境成功`)
         } catch (error) {
           message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'))
         } finally {
@@ -219,6 +230,9 @@ const WorkspaceRecord: React.FC = () => {
       <div style={{ height: 'calc(100vh - 200px)' }}>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
+            <Button type="default" onClick={() => handleSync('dev')} disabled={selectedKeys.length === 0}>
+              同步到dev环境
+            </Button>
             <Button type="primary" onClick={() => handleSync('test')} disabled={selectedKeys.length === 0}>
               同步到test环境
             </Button>

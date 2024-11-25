@@ -32,7 +32,7 @@ const withDashboardProps = (Component: React.ComponentType<any>, props: any) => 
 export const createDashboardRoutes = (props: {
     onCreateWorkspace: () => void
     currentWorkspace: string
-    onWorkspaceSelect: (workspace: string) => void
+    onWorkspaceSelect: (workspace: { name: string; id: number }) => void
 }) => {
     return [
         {

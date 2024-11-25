@@ -1,16 +1,19 @@
 import {Button, Empty} from 'antd'
 import {PlusOutlined} from '@ant-design/icons'
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 
 interface HomeProps {
   onCreateWorkspace: () => void
-  currentWorkspace: string | null
 }
 
-function Home({ onCreateWorkspace, currentWorkspace }: HomeProps) {
+function Home({ onCreateWorkspace }: HomeProps) {
+  const currentWorkspace = useSelector((state: RootState) => state.workspace.currentWorkspace);
+
   return (
     <div style={{ textAlign: 'center', padding: '50px 0' }}>
       <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>欢迎使用 OSS 同步工具</h1>
-      {currentWorkspace === '新工作区' ? (
+      {currentWorkspace === '请选择工作区' ? (
         <Empty
           description="您还没有创建工作区"
           image={Empty.PRESENTED_IMAGE_SIMPLE}

@@ -15,6 +15,9 @@ import {Route, Routes, useNavigate} from 'react-router-dom'
 import {createDashboardRoutes} from '../routes'
 import {changePassword} from '../services/auth'
 import {createWorkspace} from '../services/workspace'
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentWorkspace, clearWorkspaceState } from '../store/slices/workspaceSlice';
+import type { RootState } from '../store';
 
 const { Header, Sider, Content } = Layout
 
@@ -27,32 +30,31 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false)
   const [isWorkspaceModalVisible, setIsWorkspaceModalVisible] = useState(false)
-  const [currentWorkspace, setCurrentWorkspace] = useState(localStorage.getItem('currentWorkspace') || '新工作区')
   const [form] = Form.useForm()
   const [workspaceForm] = Form.useForm()
   const navigate = useNavigate()
   const [selectedKey, setSelectedKey] = useState('home')
+  const dispatch = useDispatch();
+  const currentWorkspace = useSelector((state: RootState) => state.workspace.currentWorkspace);
+  const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId);
 
   const handleLogout = () => {
-    // 清除所有用户相关的本地存储
-    localStorage.removeItem('token')
-    localStorage.removeItem('userId')
-    localStorage.removeItem('username')
-    localStorage.removeItem('currentWorkspace')
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('currentWorkspace');
 
-    // 清除所有工作区相关的配置
-    const keys = Object.keys(localStorage)
+    const keys = Object.keys(localStorage);
     keys.forEach(key => {
       if (key.startsWith('oss-config-')) {
-        localStorage.removeItem(key)
+        localStorage.removeItem(key);
       }
-    })
+    });
 
-    setCurrentWorkspace('新工作区')
-    setSelectedKey('home')
-    setIsAuthenticated(false)
-    navigate('/login')
-  }
+    dispatch(clearWorkspaceState());
+    setIsAuthenticated(false);
+    navigate('/login');
+  };
 
   const handlePasswordChange = async (values: any) => {
     try {
@@ -68,27 +70,25 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
 
   const handleCreateWorkspace = async (values: { name: string }) => {
     try {
-      const response = await createWorkspace(values)
-      localStorage.setItem('currentWorkspace', response.name)
-      setCurrentWorkspace(response.name)
-      setSelectedKey('home')
+      const response = await createWorkspace(values);
+      localStorage.setItem('currentWorkspace', response.name);
+      dispatch(setCurrentWorkspace({ name: response.name, id: response.id }));
+      setSelectedKey('home');
 
-      message.success('工作区创建成功')
-      setIsWorkspaceModalVisible(false)
-      workspaceForm.resetFields()
-      navigate('/dashboard/home')
+      message.success('工作区创建成功');
+      setIsWorkspaceModalVisible(false);
+      workspaceForm.resetFields();
+      navigate('/dashboard/home');
     } catch (error) {
-      console.error('工作区创建失败:', error)
+      console.error('工作区创建失败:', error);
     }
-  }
+  };
 
-  const handleWorkspaceSelect = (workspace: string) => {
-    localStorage.setItem('currentWorkspace', workspace)
-    setCurrentWorkspace(workspace)
-    setSelectedKey('home')
-    message.success('工作区切换成功')
-    navigate('/dashboard/home')
-  }
+  const handleWorkspaceSelect = (workspace: { name: string; id: number }) => {
+    localStorage.setItem('currentWorkspace', workspace.name);
+    dispatch(setCurrentWorkspace(workspace));
+    message.success('工作区切换成功');
+  };
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -128,11 +128,16 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
     })) as MenuProps['items']
 
   const handleMenuClick = (key: string) => {
-    setSelectedKey(key)
-    if (key !== 'createWorkspace') {
-      navigate(`/dashboard/${key}`)
+    if (key === 'record' && !currentWorkspaceId) {
+      message.warning('请先选择工作区');
+      return;
     }
-  }
+    
+    setSelectedKey(key);
+    if (key !== 'createWorkspace') {
+      navigate(`/dashboard/${key}`);
+    }
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

@@ -1,5 +1,5 @@
 import type {UploadProps} from 'antd'
-import {Card, message, Table, Upload as AntUpload} from 'antd'
+import {Card, message, Table, Upload as AntUpload, Input} from 'antd'
 import {InboxOutlined} from '@ant-design/icons'
 import {useState} from 'react'
 
@@ -16,12 +16,25 @@ const formatFileSize = (bytes: number) => {
 
 function Upload() {
   const [fileList, setFileList] = useState<any[]>([])
+  const [pathPrefix, setPathPrefix] = useState('v2/')
   const currentWorkspace = localStorage.getItem('currentWorkspace')
+
+  // 验证上传条件
+  const isUploadDisabled = () => {
+    if (!currentWorkspace || currentWorkspace === '新工作区') {
+      return true
+    }
+    if (!pathPrefix || !pathPrefix.endsWith('/')) {
+      return true
+    }
+    return false
+  }
 
   const uploadProps: UploadProps = {
     name: 'file',
     multiple: true,
     action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
+    disabled: isUploadDisabled(),
     onChange(info) {
       const { status } = info.file
       const newFileList = [...info.fileList].map(file => ({
@@ -40,8 +53,12 @@ function Upload() {
       }
     },
     beforeUpload: (file) => {
-      if (!currentWorkspace || currentWorkspace === '新工作区') {
-        message.error('请先创建或选择一个工作区')
+      if (isUploadDisabled()) {
+        if (!currentWorkspace || currentWorkspace === '新工作区') {
+          message.error('请先创建或选择一个工作区')
+        } else {
+          message.error('请输入有效的路径前缀，必须以/结尾')
+        }
         return false
       }
       return true
@@ -90,6 +107,20 @@ function Upload() {
           <span>当前工作区：{currentWorkspace}</span>
         }
       >
+        <div style={{ marginBottom: 16 }}>
+          <Input
+            placeholder="请输入上传路径前缀"
+            value={pathPrefix}
+            onChange={(e) => setPathPrefix(e.target.value)}
+            style={{ width: '100%' }}
+            status={pathPrefix && !pathPrefix.endsWith('/') ? 'error' : ''}
+            addonAfter={
+              pathPrefix && !pathPrefix.endsWith('/') ? 
+                <span style={{ color: '#ff4d4f' }}>必须以/结尾</span> : 
+                null
+            }
+          />
+        </div>
         <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
