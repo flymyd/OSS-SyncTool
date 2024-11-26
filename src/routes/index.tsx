@@ -39,7 +39,7 @@ export const createDashboardRoutes = (props: {
             path: 'home',
             key: 'home',
             icon: <HomeOutlined />,
-            label: '首页',
+            label: '总览',
             element: withDashboardProps(Home, {
                 onCreateWorkspace: props.onCreateWorkspace,
                 currentWorkspace: props.currentWorkspace
@@ -55,18 +55,18 @@ export const createDashboardRoutes = (props: {
             })()
         },
         {
-            path: 'record',
-            key: 'record',
-            icon: <FileTextOutlined />,
-            label: '工作区记录',
-            element: <WorkspaceRecord />
-        },
-        {
             path: 'upload',
             key: 'upload',
             icon: <UploadOutlined />,
             label: '上传管理',
             element: <Upload />
+        },
+        {
+            path: 'record',
+            key: 'record',
+            icon: <FileTextOutlined />,
+            label: '工作区记录',
+            element: <WorkspaceRecord />
         },
         {
             path: 'profile',
