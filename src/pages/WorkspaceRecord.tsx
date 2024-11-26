@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import type { GetProps, TreeDataNode } from 'antd'
-import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography } from 'antd'
+import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography, Tooltip } from 'antd'
 import { FileOutlined, FolderOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { workspaceRecordApi } from '../services/workspace-record'
@@ -37,6 +37,8 @@ const formatFileSize = (bytes: number): string => {
 
 const FileCard: React.FC<FileCardProps> = ({ file }) => (
   <Card
+    hoverable
+    styles={{header: {backgroundColor: '#f0f0f0'}}}
     title={
       <Space>
         <FileOutlined />
@@ -48,12 +50,14 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => (
   >
     <p>文件大小：{formatFileSize(file.size)}</p>
     <p>修改时间：{dayjs(file.modifiedTime).format('YYYY-MM-DD HH:mm:ss')}</p>
-    <p>Etag：{file.etag}</p>
+    <p>MD5：{file.etag}</p>
   </Card>
 )
 
 const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
   <Card
+    hoverable
+    styles={{header: {backgroundColor: '#d0d0d0'}}}
     title={
       <Space>
         <FolderOutlined />
@@ -74,16 +78,31 @@ const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
   </Card>
 )
 
-// 添加 convertToTreeData 函数
+// 添加自定义树节点标题组件
+const TreeNodeTitle: React.FC<{ title: string }> = ({ title }) => (
+  <div style={{ 
+    display: 'inline-block',
+    maxWidth: '200px',  // 设置最大宽度
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',  // 防止换行
+    verticalAlign: 'middle',
+    userSelect: 'none',
+  }}>
+    {title}
+  </div>
+);
+
+// 修改 convertToTreeData 函数
 const convertToTreeData = (files: FileInfo[]): TreeDataNode[] => {
   return files.map(file => ({
-    title: file.name,
+    title: <TreeNodeTitle title={file.name} />,  // 使用自定义标题组件
     key: file.path,
     icon: file.isDirectory ? <FolderOutlined /> : <FileOutlined />,
     isLeaf: !file.isDirectory,
     children: file.isDirectory ? convertToTreeData(file.children || []) : undefined,
-  }))
-}
+  }));
+};
 
 const WorkspaceRecord: React.FC = () => {
   const navigate = useNavigate();
@@ -260,15 +279,34 @@ const WorkspaceRecord: React.FC = () => {
             />
           </Space>
         </Space>
+        <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
+          <Text type="secondary">提示：按住 Ctrl键（Windows）或 Command键（macOS）以复选，选择后点击上方按钮同步。</Text>
+        </Space>
 
         <Layout style={{ height: '100%', background: '#fff' }}>
-          <Sider width={300} style={{ background: '#fff', borderRight: '1px solid #f0f0f0', overflow: 'auto' }}>
+          <Sider 
+            width={330} 
+            style={{ 
+              background: '#fff', 
+              borderRight: '1px solid #f0f0f0', 
+              overflow: 'auto',
+              position: 'relative'  // 添加相对定位
+            }}
+          >
             <DirectoryTree
               multiple
               defaultExpandAll
               onSelect={onSelect}
               treeData={treeData}
-              style={{ padding: '8px' }}
+              style={{ 
+                padding: '8px',
+                overflow: 'hidden'  // 防止溢出
+              }}
+              titleRender={(nodeData) => (
+                <Tooltip title={nodeData.title}>
+                  {nodeData.title}
+                </Tooltip>
+              )}
             />
           </Sider>
           <Content style={{ padding: '0 24px', overflow: 'auto' }}>

@@ -34,7 +34,7 @@ function Settings() {
       <Card
         title="OSS 配置"
         extra={currentWorkspace === '新工作区' ?
-          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> :
+          <span style={{ color: '#ff4d4f' }}>请先选择或创建工作区</span> :
           <span>当前工作区：{currentWorkspace}</span>
         }
       >

@@ -13,6 +13,23 @@ export interface UpdateWorkspaceRecordRequest extends CreateWorkspaceRecordReque
   id: number;
 }
 
+export interface WorkspaceRecordResponse {
+  id: number;
+  filePath: string;
+  etag: string;
+  size: number;
+  workspace: {
+    id: number;
+    name: string;
+  };
+  modifier: {
+    id: number;
+    username: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const workspaceRecordApi = {
   async create(data: CreateWorkspaceRecordRequest) {
     const formData = new FormData();
@@ -41,5 +58,12 @@ export const workspaceRecordApi = {
       `/workspace-record/tree/${workspaceId}`,
     );
     return response.records;
+  },
+
+  async getRecords(workspaceId: number): Promise<WorkspaceRecordResponse[]> {
+    const response = await request.get<WorkspaceRecordResponse[]>(
+      `/workspace-record/list/${workspaceId}`
+    );
+    return response;
   },
 }; 

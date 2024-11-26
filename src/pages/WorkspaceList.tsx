@@ -86,6 +86,7 @@ function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
             <Button
               type="link"
               danger
+              disabled={record.id === currentWorkspaceId}
               onClick={() => handleDelete(record)}
             >
               删除

@@ -1,7 +1,12 @@
 import type {UploadProps} from 'antd'
 import {Card, message, Table, Upload as AntUpload, Input} from 'antd'
 import {InboxOutlined} from '@ant-design/icons'
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
+import {useSelector} from 'react-redux'
+import {workspaceRecordApi} from '../services/workspace-record'
+import type {RootState} from '../store'
+import {getFileHash} from '../utils/file'
+import dayjs from 'dayjs'
 
 const { Dragger } = AntUpload
 
@@ -14,14 +19,38 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
+// 添加获取文件名的辅助函数
+const getFileName = (filePath: string) => {
+  const parts = filePath.split('/')
+  return parts[parts.length - 1]
+}
+
 function Upload() {
   const [fileList, setFileList] = useState<any[]>([])
   const [pathPrefix, setPathPrefix] = useState('v2/')
-  const currentWorkspace = localStorage.getItem('currentWorkspace')
+  const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId)
+  const username = useSelector((state: RootState) => state.auth.username)
+  const [records, setRecords] = useState<WorkspaceRecordResponse[]>([])
+
+  // 获取上传记录
+  const fetchRecords = async () => {
+    if (!currentWorkspaceId) return
+    try {
+      const data = await workspaceRecordApi.getRecords(currentWorkspaceId)
+      setRecords(data)
+    } catch (error) {
+      message.error('获取上传记录失败')
+    }
+  }
+
+  // 在工作区ID变化时获取记录
+  useEffect(() => {
+    fetchRecords()
+  }, [currentWorkspaceId])
 
   // 验证上传条件
   const isUploadDisabled = () => {
-    if (!currentWorkspace || currentWorkspace === '新工作区') {
+    if (!currentWorkspaceId) {
       return true
     }
     if (!pathPrefix || !pathPrefix.endsWith('/')) {
@@ -33,7 +62,26 @@ function Upload() {
   const uploadProps: UploadProps = {
     name: 'file',
     multiple: true,
-    action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
+    customRequest: async (options) => {
+      const {file, onSuccess, onError, onProgress} = options
+      try {
+        const fileObj = file as File
+        const filePath = pathPrefix + fileObj.name
+        const etag = await getFileHash(fileObj)
+        
+        await workspaceRecordApi.create({
+          workspaceId: currentWorkspaceId!,
+          filePath,
+          etag,
+          size: fileObj.size,
+          file: fileObj,
+        })
+        
+        onSuccess?.('上传成功')
+      } catch (error) {
+        onError?.(error as Error)
+      }
+    },
     disabled: isUploadDisabled(),
     onChange(info) {
       const { status } = info.file
@@ -41,20 +89,23 @@ function Upload() {
         ...file,
         status: file.status,
         size: formatFileSize(file.size || 0),
-        uploadTime: new Date().toLocaleString()
+        uploadTime: new Date().toLocaleString(),
+        operator: username
       }))
 
       setFileList(newFileList)
 
       if (status === 'done') {
         message.success(`${info.file.name} 文件上传成功`)
+        // 上传成功后刷新记录列表
+        fetchRecords()
       } else if (status === 'error') {
         message.error(`${info.file.name} 文件上传失败`)
       }
     },
     beforeUpload: (file) => {
       if (isUploadDisabled()) {
-        if (!currentWorkspace || currentWorkspace === '新工作区') {
+        if (!currentWorkspaceId) {
           message.error('请先创建或选择一个工作区')
         } else {
           message.error('请输入有效的路径前缀，必须以/结尾')
@@ -68,32 +119,32 @@ function Upload() {
   const columns = [
     {
       title: '文件名',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'filePath',
+      key: 'filePath',
+      render: (filePath: string) => getFileName(filePath),
     },
     {
       title: '大小',
       dataIndex: 'size',
       key: 'size',
+      render: (size: number) => formatFileSize(size),
     },
     {
       title: '上传时间',
-      dataIndex: 'uploadTime',
-      key: 'uploadTime',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (time: string) => dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string) => {
-        const statusMap: Record<string, { text: string; color: string }> = {
-          uploading: { text: '上传中', color: '#1890ff' },
-          done: { text: '已完成', color: '#52c41a' },
-          error: { text: '失败', color: '#ff4d4f' },
-        }
-        const { text, color } = statusMap[status] || { text: '未知', color: '#000' }
-        return <span style={{ color }}>{text}</span>
-      }
+      title: '操作人',
+      dataIndex: ['modifier', 'username'],
+      key: 'operator',
+    },
+    {
+      title: 'ETag',
+      dataIndex: 'etag',
+      key: 'etag',
+      ellipsis: true,
     },
   ]
 
@@ -102,9 +153,9 @@ function Upload() {
       <Card
         title="文件上传"
         style={{ marginBottom: 24 }}
-        extra={currentWorkspace === '新工作区' ?
-          <span style={{ color: '#ff4d4f' }}>请先创建工作区</span> :
-          <span>当前工作区：{currentWorkspace}</span>
+        extra={!currentWorkspaceId ?
+          <span style={{ color: '#ff4d4f' }}>请先选择或创建工作区</span> :
+          <span>当前工作区：{currentWorkspaceId}</span>
         }
       >
         <div style={{ marginBottom: 16 }}>
@@ -135,11 +186,11 @@ function Upload() {
       <Card title="上传历史">
         <Table
           columns={columns}
-          dataSource={fileList}
-          rowKey={record => record.uid || record.name}
+          dataSource={records}
+          rowKey="id"
           pagination={{
             pageSize: 10,
-            showTotal: (total) => `共 ${total} 个文件`
+            showTotal: (total) => `共 ${total} 个文件`,
           }}
         />
       </Card>
