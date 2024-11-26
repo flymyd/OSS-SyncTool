@@ -82,10 +82,10 @@ const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
 const TreeNodeTitle: React.FC<{ title: string }> = ({ title }) => (
   <div style={{ 
     display: 'inline-block',
-    maxWidth: '200px',  // 设置最大宽度
+    maxWidth: '200px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',  // 防止换行
+    whiteSpace: 'nowrap',
     verticalAlign: 'middle',
     userSelect: 'none',
   }}>
@@ -96,12 +96,48 @@ const TreeNodeTitle: React.FC<{ title: string }> = ({ title }) => (
 // 修改 convertToTreeData 函数
 const convertToTreeData = (files: FileInfo[]): TreeDataNode[] => {
   return files.map(file => ({
-    title: <TreeNodeTitle title={file.name} />,  // 使用自定义标题组件
+    title: file.name,  // 直接使用字符串而不是组件
     key: file.path,
     icon: file.isDirectory ? <FolderOutlined /> : <FileOutlined />,
     isLeaf: !file.isDirectory,
     children: file.isDirectory ? convertToTreeData(file.children || []) : undefined,
   }));
+};
+
+// 添加获取所有选中文件的递归函数
+const getAllSelectedFiles = (selectedPaths: string[], fileTree: FileInfo[]): FileInfo[] => {
+  const result: FileInfo[] = [];
+  
+  const findFiles = (path: string, tree: FileInfo[]) => {
+    for (const node of tree) {
+      if (selectedPaths.includes(node.path)) {
+        if (node.isDirectory) {
+          // 如果是目录，递归添加所有子文件
+          const getAllFilesInDir = (dirNode: FileInfo) => {
+            if (dirNode.children) {
+              for (const child of dirNode.children) {
+                if (child.isDirectory) {
+                  getAllFilesInDir(child);
+                } else {
+                  result.push(child);
+                }
+              }
+            }
+          };
+          getAllFilesInDir(node);
+        } else {
+          // 如果是文件，直接添加
+          result.push(node);
+        }
+      } else if (node.children) {
+        // 继续搜索子目录
+        findFiles(path, node.children);
+      }
+    }
+  };
+
+  selectedPaths.forEach(path => findFiles(path, fileTree));
+  return result;
 };
 
 const WorkspaceRecord: React.FC = () => {
@@ -192,26 +228,39 @@ const WorkspaceRecord: React.FC = () => {
     fetchFileTree();
   }, [currentWorkspaceId, navigate]);
 
-  // 同步到目标环境
+  // 修改同步处理函数
   const handleSync = async (env: 'dev' | 'test' | 'prod') => {
     Modal.confirm({
       title: `确认同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境？`,
       content: '此操作将同步所选文件到目标环境，请确认。',
       onOk: async () => {
         try {
-          setLoading(true)
-          console.log(selectedKeys)
-          // 模拟同步操作
-          await new Promise(resolve => setTimeout(resolve, 2000))
-          message.success(`同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境成功`)
+          setLoading(true);
+          
+          // 获取所有需要同步的文件
+          const filesToSync = getAllSelectedFiles(selectedKeys, originalData);
+          
+          // 准备同步数据
+          const syncData = filesToSync.map(file => ({
+            id: file.id!,  // 使用非空断言,因为我们确定服务端会返回id
+            path: file.path,
+            name: file.name,
+            size: file.size,
+            etag: file.etag
+          }));
+
+          // 调用同步API
+          await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
+          
+          message.success(`同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境成功`);
         } catch (error) {
-          message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'))
+          message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'));
         } finally {
-          setLoading(false)
+          setLoading(false);
         }
       },
-    })
-  }
+    });
+  };
 
   // 选择节点时更新选中状态
   const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
@@ -302,9 +351,9 @@ const WorkspaceRecord: React.FC = () => {
                 padding: '8px',
                 overflow: 'hidden'  // 防止溢出
               }}
-              titleRender={(nodeData) => (
-                <Tooltip title={nodeData.title}>
-                  {nodeData.title}
+              titleRender={(node) => (
+                <Tooltip title={typeof node.title === 'string' ? node.title : ''}>
+                  {typeof node.title === 'string' ? node.title : ''}
                 </Tooltip>
               )}
             />

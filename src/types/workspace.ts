@@ -6,4 +6,15 @@ export interface FileInfo {
   isDirectory: boolean
   children?: FileInfo[]
   path: string
+}
+
+export interface WorkspaceResponseDto {
+  id: number;
+  name: string;
+  creator: {
+    id: number;
+    username: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 } 

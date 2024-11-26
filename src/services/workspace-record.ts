@@ -1,5 +1,6 @@
 import request from '../utils/request';
 import { FileInfo } from '../types/workspace';
+import { WorkspaceRecordResponse } from '../types/workspace-record';
 
 export interface CreateWorkspaceRecordRequest {
   workspaceId: number;
@@ -30,6 +31,14 @@ export interface WorkspaceRecordResponse {
   updatedAt: string;
 }
 
+interface SyncFileInfo {
+  id: number;
+  path: string;
+  name: string;
+  size: number;
+  etag: string;
+}
+
 export const workspaceRecordApi = {
   async create(data: CreateWorkspaceRecordRequest) {
     const formData = new FormData();
@@ -54,16 +63,20 @@ export const workspaceRecordApi = {
   },
 
   async getFileTree(workspaceId: number): Promise<FileInfo[]> {
-    const response = await request.get<{ records: FileInfo[] }>(
+    const { records } = await request.get<{ records: FileInfo[] }>(
       `/workspace-record/tree/${workspaceId}`,
     );
-    return response.records;
+    return records;
   },
 
   async getRecords(workspaceId: number): Promise<WorkspaceRecordResponse[]> {
-    const response = await request.get<WorkspaceRecordResponse[]>(
+    const { records } = await request.get<{ records: WorkspaceRecordResponse[] }>(
       `/workspace-record/list/${workspaceId}`
     );
-    return response;
+    return records;
+  },
+
+  async syncFiles(workspaceId: number, env: 'dev' | 'test' | 'prod', files: SyncFileInfo[]) {
+    return request.post(`/workspace-record/sync/${workspaceId}/${env}`, { files });
   },
 }; 
