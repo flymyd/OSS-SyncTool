@@ -295,7 +295,7 @@ const WorkspaceRecord: React.FC = () => {
   const currentWorkspace = useSelector((state: RootState) => state.workspace.currentWorkspace)
   return (
     <Spin spinning={loading}>
-      <div style={{ height: 'calc(100vh - 200px)' }}>
+      <div style={{ height: 'calc(100vh - 260px)' }}>
         <Space style={{ marginBottom: 16, fontSize: 16, fontWeight: 'bold', color: 'red' }}>当前工作区：{currentWorkspace}</Space>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
