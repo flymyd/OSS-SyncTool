@@ -38,7 +38,7 @@ const formatFileSize = (bytes: number): string => {
 const FileCard: React.FC<FileCardProps> = ({ file }) => (
   <Card
     hoverable
-    styles={{header: {backgroundColor: '#f0f0f0'}}}
+    styles={{ header: { backgroundColor: '#f0f0f0' } }}
     title={
       <Space>
         <FileOutlined />
@@ -57,7 +57,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => (
 const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
   <Card
     hoverable
-    styles={{header: {backgroundColor: '#d0d0d0'}}}
+    styles={{ header: { backgroundColor: '#d0d0d0' } }}
     title={
       <Space>
         <FolderOutlined />
@@ -80,7 +80,7 @@ const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
 
 // 添加自定义树节点标题组件
 const TreeNodeTitle: React.FC<{ title: string }> = ({ title }) => (
-  <div style={{ 
+  <div style={{
     display: 'inline-block',
     maxWidth: '200px',
     overflow: 'hidden',
@@ -107,7 +107,7 @@ const convertToTreeData = (files: FileInfo[]): TreeDataNode[] => {
 // 添加获取所有选中文件的递归函数
 const getAllSelectedFiles = (selectedPaths: string[], fileTree: FileInfo[]): FileInfo[] => {
   const result: FileInfo[] = [];
-  
+
   const findFiles = (path: string, tree: FileInfo[]) => {
     for (const node of tree) {
       if (selectedPaths.includes(node.path)) {
@@ -143,7 +143,7 @@ const getAllSelectedFiles = (selectedPaths: string[], fileTree: FileInfo[]): Fil
 const WorkspaceRecord: React.FC = () => {
   const navigate = useNavigate();
   const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId);
-  
+
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<FileInfo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -211,7 +211,7 @@ const WorkspaceRecord: React.FC = () => {
         navigate('/dashboard/workspaces');
         return;
       }
-      
+
       setLoading(true);
       setError(null);
       try {
@@ -236,10 +236,10 @@ const WorkspaceRecord: React.FC = () => {
       onOk: async () => {
         try {
           setLoading(true);
-          
+
           // 获取所有需要同步的文件
           const filesToSync = getAllSelectedFiles(selectedKeys, originalData);
-          
+
           // 准备同步数据
           const syncData = filesToSync.map(file => ({
             id: file.id!,  // 使用非空断言,因为我们确定服务端会返回id
@@ -251,7 +251,7 @@ const WorkspaceRecord: React.FC = () => {
 
           // 调用同步API
           await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
-          
+
           message.success(`同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境成功`);
         } catch (error) {
           message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'));
@@ -292,10 +292,11 @@ const WorkspaceRecord: React.FC = () => {
       <Button onClick={() => window.location.reload()}>重试</Button>
     </div>
   }
-
+  const currentWorkspace = useSelector((state: RootState) => state.workspace.currentWorkspace)
   return (
     <Spin spinning={loading}>
       <div style={{ height: 'calc(100vh - 200px)' }}>
+        <Space style={{ marginBottom: 16, fontSize: 16, fontWeight: 'bold', color: 'red' }}>当前工作区：{currentWorkspace}</Space>
         <Space style={{ marginBottom: 16, width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Button type="default" onClick={() => handleSync('dev')} disabled={selectedKeys.length === 0}>
@@ -333,11 +334,11 @@ const WorkspaceRecord: React.FC = () => {
         </Space>
 
         <Layout style={{ height: '100%', background: '#fff' }}>
-          <Sider 
-            width={330} 
-            style={{ 
-              background: '#fff', 
-              borderRight: '1px solid #f0f0f0', 
+          <Sider
+            width={350}
+            style={{
+              background: '#fff',
+              borderRight: '1px solid #f0f0f0',
               overflow: 'auto',
               position: 'relative'  // 添加相对定位
             }}
@@ -347,13 +348,13 @@ const WorkspaceRecord: React.FC = () => {
               defaultExpandAll
               onSelect={onSelect}
               treeData={treeData}
-              style={{ 
+              style={{
                 padding: '8px',
                 overflow: 'hidden'  // 防止溢出
               }}
               titleRender={(node) => (
                 <Tooltip title={typeof node.title === 'string' ? node.title : ''}>
-                  {typeof node.title === 'string' ? node.title : ''}
+                  <TreeNodeTitle title={typeof node.title === 'string' ? node.title : ''} />
                 </Tooltip>
               )}
             />

@@ -1,5 +1,5 @@
-import {Button, Empty} from 'antd'
-import {PlusOutlined} from '@ant-design/icons'
+import { Button, Empty } from 'antd'
+import { PlusOutlined } from '@ant-design/icons'
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
 
@@ -24,7 +24,7 @@ function Home({ onCreateWorkspace }: HomeProps) {
         </Empty>
       ) : (
         <div>
-          <p>当前工作区：{currentWorkspace}</p>
+          <p style={{ color: 'red' }}>当前工作区：{currentWorkspace}</p>
           <p style={{ marginTop: '20px' }}>在左侧菜单中选择功能开始使用</p>
         </div>
       )}

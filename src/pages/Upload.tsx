@@ -29,8 +29,9 @@ function Upload() {
   const [fileList, setFileList] = useState<any[]>([])
   const [pathPrefix, setPathPrefix] = useState('v2/')
   const currentWorkspaceId = useSelector((state: RootState) => state.workspace.currentWorkspaceId)
+  const currentWorkspace = useSelector((state: RootState) => state.workspace.currentWorkspace)
   const username = useSelector((state: RootState) => state.auth.username)
-  const [records, setRecords] = useState<WorkspaceRecordResponse[]>([])
+  const [records, setRecords] = useState<any[]>([])
 
   // 获取上传记录
   const fetchRecords = async () => {
@@ -124,39 +125,47 @@ function Upload() {
       render: (filePath: string) => getFileName(filePath),
     },
     {
+      title: '文件路径',
+      dataIndex: 'filePath',
+      key: 'etag',
+      ellipsis: true,
+    },
+    {
       title: '大小',
       dataIndex: 'size',
       key: 'size',
+      width: 150,
       render: (size: number) => formatFileSize(size),
     },
     {
       title: '上传时间',
       dataIndex: 'updatedAt',
       key: 'updatedAt',
+      width: 200,
       render: (time: string) => dayjs(time).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '操作人',
       dataIndex: ['modifier', 'username'],
       key: 'operator',
-    },
-    {
-      title: 'ETag',
-      dataIndex: 'etag',
-      key: 'etag',
-      ellipsis: true,
+      width: 120,
     },
   ]
 
   return (
     <div>
       <Card
-        title="文件上传"
-        style={{ marginBottom: 24 }}
-        extra={!currentWorkspaceId ?
-          <span style={{ color: '#ff4d4f' }}>请先选择或创建工作区</span> :
-          <span>当前工作区：{currentWorkspaceId}</span>
+        title={
+          <div>
+            <span style={{marginRight: 16}}>文件上传</span>
+            {!currentWorkspaceId ? (
+              <span style={{ color: '#ff4d4f', marginLeft: 8 }}>请先选择或创建工作区</span>
+            ) : (
+              <span style={{ color: 'red', marginLeft: 8 }}>当前工作区：{currentWorkspace}</span>
+            )}
+          </div>
         }
+        style={{ marginBottom: 24 }}
       >
         <div style={{ marginBottom: 16 }}>
           <Input
