@@ -1,11 +1,11 @@
-import type {UploadProps} from 'antd'
-import {Card, message, Table, Upload as AntUpload, Input} from 'antd'
-import {InboxOutlined} from '@ant-design/icons'
-import {useState, useEffect} from 'react'
-import {useSelector} from 'react-redux'
-import {workspaceRecordApi} from '../services/workspace-record'
-import type {RootState} from '../store'
-import {getFileHash} from '../utils/file'
+import type { UploadProps } from 'antd'
+import { Card, message, Table, Upload as AntUpload, Input, Button } from 'antd'
+import { InboxOutlined } from '@ant-design/icons'
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import { workspaceRecordApi } from '../services/workspace-record'
+import type { RootState } from '../store'
+import { getFileHash } from '../utils/file'
 import dayjs from 'dayjs'
 
 const { Dragger } = AntUpload
@@ -64,12 +64,12 @@ function Upload() {
     name: 'file',
     multiple: true,
     customRequest: async (options) => {
-      const {file, onSuccess, onError, onProgress} = options
+      const { file, onSuccess, onError, onProgress } = options
       try {
         const fileObj = file as File
         const filePath = pathPrefix + fileObj.name
         const etag = await getFileHash(fileObj)
-        
+
         await workspaceRecordApi.create({
           workspaceId: currentWorkspaceId!,
           filePath,
@@ -77,7 +77,7 @@ function Upload() {
           size: fileObj.size,
           file: fileObj,
         })
-        
+
         onSuccess?.('上传成功')
       } catch (error) {
         onError?.(error as Error)
@@ -157,7 +157,7 @@ function Upload() {
       <Card
         title={
           <div>
-            <span style={{marginRight: 16}}>文件上传</span>
+            <span style={{ marginRight: 16 }}>文件上传</span>
             {!currentWorkspaceId ? (
               <span style={{ color: '#ff4d4f', marginLeft: 8 }}>请先选择或创建工作区</span>
             ) : (
@@ -167,19 +167,25 @@ function Upload() {
         }
         style={{ marginBottom: 24 }}
       >
-        <div style={{ marginBottom: 16 }}>
+        <div style={{ marginBottom: 16, display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span>选择上传路径前缀：</span>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/')}>/v2/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/activity/')}>/v2/activity/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/user/')}>/v2/user/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/user/home/')}>/v2/user/home/</Button>
+        </div>
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
           <Input
-            placeholder="请输入上传路径前缀"
+            placeholder="或自定义上传路径前缀，必须以/结尾"
             value={pathPrefix}
             onChange={(e) => setPathPrefix(e.target.value)}
-            style={{ width: '100%' }}
-            status={pathPrefix && !pathPrefix.endsWith('/') ? 'error' : ''}
-            addonAfter={
-              pathPrefix && !pathPrefix.endsWith('/') ? 
-                <span style={{ color: '#ff4d4f' }}>必须以/结尾</span> : 
-                null
-            }
+            style={{ flex: 1 }}
           />
+          {
+            pathPrefix && !pathPrefix.endsWith('/') ?
+              <span style={{ color: '#ff4d4f', marginLeft: 16 }}>上传路径前缀必须以/结尾！</span> :
+              null
+          }
         </div>
         <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">
@@ -187,7 +193,7 @@ function Upload() {
           </p>
           <p className="ant-upload-text">点击或拖拽文件到此区域上传</p>
           <p className="ant-upload-hint">
-            支持单个或批量上传，严禁上传公司数据或其他违禁文件
+            支持单个或批量上传，严禁上传违禁文件
           </p>
         </Dragger>
       </Card>
