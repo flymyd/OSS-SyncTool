@@ -1,5 +1,5 @@
 import type { UploadProps } from 'antd'
-import { Card, message, Table, Upload as AntUpload, Input, Button } from 'antd'
+import { Card, message, Table, Upload as AntUpload, Input, Button, Image } from 'antd'
 import { InboxOutlined } from '@ant-design/icons'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
@@ -24,6 +24,8 @@ const getFileName = (filePath: string) => {
   const parts = filePath.split('/')
   return parts[parts.length - 1]
 }
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8965';
 
 function Upload() {
   const [fileList, setFileList] = useState<any[]>([])
@@ -149,6 +151,29 @@ function Upload() {
       dataIndex: ['modifier', 'username'],
       key: 'operator',
       width: 120,
+    },
+    {
+      title: '预览',
+      key: 'preview',
+      width: 100,
+      render: (_, record: any) => {
+        const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(record.filePath);
+        if (!isImage) return null;
+        
+        const previewUrl = `${API_URL}/workspace-record/preview/${record.id}`;
+        
+        return (
+          <Image
+            src={previewUrl}
+            alt={record.filePath}
+            style={{ maxWidth: 50, maxHeight: 50, objectFit: 'contain' }}
+            preview={{
+              src: previewUrl,
+              mask: '预览'
+            }}
+          />
+        );
+      },
     },
   ]
 

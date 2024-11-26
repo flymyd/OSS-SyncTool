@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import type { GetProps, TreeDataNode } from 'antd'
-import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography, Tooltip } from 'antd'
+import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography, Tooltip, Image } from 'antd'
 import { FileOutlined, FolderOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { workspaceRecordApi } from '../services/workspace-record'
@@ -20,6 +20,8 @@ interface FileCardProps {
   file: FileInfo
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8965';
+
 // 添加文件大小转换函数
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 KB'
@@ -35,24 +37,49 @@ const formatFileSize = (bytes: number): string => {
   return `${gb.toFixed(2)} GB`
 }
 
-const FileCard: React.FC<FileCardProps> = ({ file }) => (
-  <Card
-    hoverable
-    styles={{ header: { backgroundColor: '#f0f0f0' } }}
-    title={
-      <Space>
-        <FileOutlined />
-        {file.name}
-      </Space>
-    }
-    size="small"
-    style={{ marginBottom: 8 }}
-  >
-    <p>文件大小：{formatFileSize(file.size)}</p>
-    <p>修改时间：{dayjs(file.modifiedTime).format('YYYY-MM-DD HH:mm:ss')}</p>
-    <p>MD5：{file.etag}</p>
-  </Card>
-)
+// 添加判断是否为图片的辅助函数
+const isImageFile = (fileName: string): boolean => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+  return imageExtensions.includes(ext);
+};
+
+const FileCard: React.FC<FileCardProps> = ({ file }) => {
+  const isImage = isImageFile(file.name);
+  const previewUrl = isImage && file.id > 0 ? `${API_URL}/workspace-record/preview/${file.id}` : null;
+
+  return (
+    <Card
+      hoverable
+      styles={{ header: { backgroundColor: '#f0f0f0' } }}
+      title={
+        <Space>
+          <FileOutlined />
+          {file.name}
+        </Space>
+      }
+      size="small"
+      style={{ marginBottom: 8 }}
+    >
+      {isImage && previewUrl && (
+        <div style={{ marginBottom: 8 }}>
+          <Image
+            src={previewUrl}
+            alt={file.name}
+            style={{ maxWidth: 200, maxHeight: 150, objectFit: 'contain' }}
+            preview={{
+              src: previewUrl,
+              mask: '预览'
+            }}
+          />
+        </div>
+      )}
+      <p>文件大小：{formatFileSize(file.size)}</p>
+      <p>修改时间：{dayjs(file.modifiedTime).format('YYYY-MM-DD HH:mm:ss')}</p>
+      <p>MD5：{file.etag}</p>
+    </Card>
+  );
+};
 
 const DirectoryCard: React.FC<FileCardProps> = ({ file }) => (
   <Card
