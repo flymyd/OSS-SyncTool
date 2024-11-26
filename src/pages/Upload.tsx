@@ -205,7 +205,7 @@ function Upload() {
           rowKey="id"
           pagination={{
             pageSize: 10,
-            showTotal: (total) => `共 ${total} 个文件`,
+            showTotal: (total) => `共 ${total} 条记录`,
           }}
         />
       </Card>
