@@ -18,6 +18,7 @@ import {createWorkspace} from '../services/workspace'
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentWorkspace, clearWorkspaceState } from '../store/slices/workspaceSlice';
 import type { RootState } from '../store';
+import { useWorkspaceCheck } from '../hooks/useWorkspaceCheck';
 
 const { Header, Sider, Content } = Layout
 
@@ -138,6 +139,9 @@ function Dashboard({ setIsAuthenticated }: DashboardProps) {
       navigate(`/dashboard/${key}`);
     }
   };
+
+  // 添加工作区检查
+  useWorkspaceCheck();
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
