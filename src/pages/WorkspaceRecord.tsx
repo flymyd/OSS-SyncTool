@@ -131,22 +131,31 @@ const convertToTreeData = (files: FileInfo[]): TreeDataNode[] => {
   }));
 };
 
-// 添加获取所有选中文件的递归函数
+// 修改获取所有选中文件的递归函数，添加去重逻辑
 const getAllSelectedFiles = (selectedPaths: string[], fileTree: FileInfo[]): FileInfo[] => {
   const result: FileInfo[] = [];
+  const seenPaths = new Set<string>();  // 用于记录已处理的文件路径
 
   const findFiles = (path: string, tree: FileInfo[]) => {
     for (const node of tree) {
+      // 如果当前路径已经处理过，跳过
+      if (seenPaths.has(node.path)) {
+        continue;
+      }
+
       if (selectedPaths.includes(node.path)) {
         if (node.isDirectory) {
           // 如果是目录，递归添加所有子文件
           const getAllFilesInDir = (dirNode: FileInfo) => {
             if (dirNode.children) {
               for (const child of dirNode.children) {
-                if (child.isDirectory) {
-                  getAllFilesInDir(child);
-                } else {
-                  result.push(child);
+                if (!seenPaths.has(child.path)) {
+                  seenPaths.add(child.path);
+                  if (child.isDirectory) {
+                    getAllFilesInDir(child);
+                  } else {
+                    result.push(child);
+                  }
                 }
               }
             }
@@ -154,6 +163,7 @@ const getAllSelectedFiles = (selectedPaths: string[], fileTree: FileInfo[]): Fil
           getAllFilesInDir(node);
         } else {
           // 如果是文件，直接添加
+          seenPaths.add(node.path);
           result.push(node);
         }
       } else if (node.children) {
@@ -255,40 +265,6 @@ const WorkspaceRecord: React.FC = () => {
     fetchFileTree();
   }, [currentWorkspaceId, navigate]);
 
-  // 修改同步处理函数
-  const handleSync = async (env: 'dev' | 'test' | 'prod') => {
-    Modal.confirm({
-      title: `确认同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境？`,
-      content: '此操作将同步所选文件到目标环境，请确认。',
-      onOk: async () => {
-        try {
-          setLoading(true);
-
-          // 获取所有需要同步的文件
-          const filesToSync = getAllSelectedFiles(selectedKeys, originalData);
-
-          // 准备同步数据
-          const syncData = filesToSync.map(file => ({
-            id: file.id!,  // 使用非空断言,因为我们确定服务端会返回id
-            path: file.path,
-            name: file.name,
-            size: file.size,
-            etag: file.etag
-          }));
-
-          // 调用同步API
-          await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
-
-          message.success(`同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境成功`);
-        } catch (error) {
-          message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'));
-        } finally {
-          setLoading(false);
-        }
-      },
-    });
-  };
-
   // 选择节点时更新选中状态
   const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
     setSelectedKeys(keys as string[])
@@ -312,6 +288,45 @@ const WorkspaceRecord: React.FC = () => {
 
     setSelectedNodes(findNodes(originalData, keys as string[]))
   }
+
+  // 将 handleSync 移到组件内部
+  const handleSync = async (env: 'dev' | 'test' | 'prod') => {
+    // 获取所有需要同步的文件（已去重）
+    const filesToSync = getAllSelectedFiles(selectedKeys, originalData);
+
+    if (filesToSync.length === 0) {
+      message.warning('没有选择任何文件进行同步');
+      return;
+    }
+
+    Modal.confirm({
+      title: `确认同步到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境？`,
+      content: `此操作将同步 ${filesToSync.length} 个文件到目标环境，请确认。`,
+      onOk: async () => {
+        try {
+          setLoading(true);
+
+          // 准备同步数据，确保包含 id 字段
+          const syncData = filesToSync.map(file => ({
+            id: file.id,        // 添加 id 字段
+            path: file.path,
+            name: file.name,
+            size: file.size,
+            etag: file.etag
+          }));
+
+          // 调用同步API
+          await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
+
+          message.success(`成功同步 ${filesToSync.length} 个文件到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境`);
+        } catch (error) {
+          message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'));
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
 
   if (error) {
     return <div style={{ textAlign: 'center', padding: '50px' }}>
