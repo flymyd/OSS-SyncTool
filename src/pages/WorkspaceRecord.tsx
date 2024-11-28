@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import type { GetProps, TreeDataNode } from 'antd'
 import { Button, Card, Input, Layout, message, Modal, Select, Space, Spin, Tree, Typography, Tooltip, Image } from 'antd'
-import { FileOutlined, FolderOutlined } from '@ant-design/icons'
+import { FileOutlined, FolderOutlined, DownloadOutlined, EyeOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { workspaceRecordApi } from '../services/workspace-record'
 import type { FileInfo } from '../types/workspace'
@@ -48,18 +48,22 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
   const isImage = isImageFile(file.name);
   const previewUrl = isImage && file.id > 0 ? `${API_URL}/workspace-record/preview/${file.id}` : null;
 
+  const handleDownload = () => {
+    if (file.id > 0) {
+      window.open(`${API_URL}/workspace-record/download/${file.id}`, '_blank');
+    }
+  };
+
   return (
     <Card
       hoverable
-      styles={{ header: { backgroundColor: '#f0f0f0' } }}
-      title={
-        <Space>
-          <FileOutlined />
-          {file.name}
-        </Space>
-      }
-      size="small"
-      style={{ marginBottom: 8 }}
+      style={{ width: '100%', marginBottom: 16 }}
+      actions={[
+        <Tooltip title="下载文件">
+          <DownloadOutlined key="download" onClick={handleDownload} />
+          下载文件（日志服务器版本）
+        </Tooltip>,
+      ].filter(Boolean)}
     >
       {isImage && previewUrl && (
         <div style={{ marginBottom: 8 }}>
