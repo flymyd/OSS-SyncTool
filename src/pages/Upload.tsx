@@ -1,3 +1,12 @@
+// 在文件顶部添加类型声明
+declare global {
+  interface Window {
+    _env_: {
+      API_URL: string;
+    }
+  }
+}
+
 import type { UploadProps } from 'antd'
 import { Card, message, Table, Upload as AntUpload, Input, Button, Image } from 'antd'
 import { InboxOutlined } from '@ant-design/icons'
@@ -25,7 +34,7 @@ const getFileName = (filePath: string) => {
   return parts[parts.length - 1]
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8965';
+const API_URL = window._env_?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:8965';
 
 function Upload() {
   const [fileList, setFileList] = useState<any[]>([])
