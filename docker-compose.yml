@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  oss-sync-tool:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: oss-sync-tool
+    container_name: oss-sync-tool
+    restart: unless-stopped
+    ports:
+      - "5174:80"
+    environment:
+      - API_URL=http://192.168.1.253:8965

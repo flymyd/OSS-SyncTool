@@ -4,8 +4,19 @@ import { store } from '../store';
 import { clearWorkspaceState } from '../store/slices/workspaceSlice';
 import { clearAuth } from '../store/slices/authSlice';
 
+// 修改这里，使用 window._env_ 来获取运行时的环境变量
+declare global {
+  interface Window {
+    _env_: {
+      API_URL: string;
+    }
+  }
+}
+
+const API_URL = window._env_?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:8965';
+
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8965',
+  baseURL: API_URL,
 });
 request.interceptors.request.use(
   (config) => {
