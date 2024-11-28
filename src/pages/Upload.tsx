@@ -194,10 +194,10 @@ function Upload() {
       >
         <div style={{ marginBottom: 16, display: 'flex', gap: 6, alignItems: 'center' }}>
           <span>选择上传路径前缀：</span>
-          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/')}>/v2/</Button>
-          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/activity/')}>/v2/activity/</Button>
-          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/user/')}>/v2/user/</Button>
-          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('/v2/user/home/')}>/v2/user/home/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('v2/')}>v2/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('v2/activity/')}>v2/activity/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('v2/user/')}>v2/user/</Button>
+          <Button color="primary" variant="outlined" onClick={() => setPathPrefix('v2/user/home/')}>v2/user/home/</Button>
         </div>
         <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center' }}>
           <Input
