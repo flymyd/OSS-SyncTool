@@ -316,10 +316,12 @@ const WorkspaceRecord: React.FC = () => {
           }));
 
           // 调用同步API
-          await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
-
-          message.success(`成功同步 ${filesToSync.length} 个文件到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境`);
+          const res = await workspaceRecordApi.syncFiles(currentWorkspaceId!, env, syncData);
+          if (res.status !== 'success') {
+            message.error(`同步失败：${res.failedFiles} 个文件同步失败，请在同步记录中查看日志`);
+          } else message.success(`成功同步 ${filesToSync.length} 个文件到${env === 'test' ? '测试' : env === 'dev' ? '开发' : '生产'}环境`);
         } catch (error) {
+          console.log(error)
           message.error('同步失败：' + (error instanceof Error ? error.message : '未知错误'));
         } finally {
           setLoading(false);

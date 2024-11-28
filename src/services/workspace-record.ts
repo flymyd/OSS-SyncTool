@@ -39,6 +39,19 @@ interface SyncFileInfo {
   etag: string;
 }
 
+export interface SyncTaskRecord {
+  fileName: string;
+  status: 'success' | 'failed';
+  errorMessage?: string;
+}
+
+export interface SyncTaskResponse {
+  status: 'success' | 'partial_success' | 'failed';
+  totalFiles: number;
+  failedFiles: number;
+  records: SyncTaskRecord[];
+}
+
 export const workspaceRecordApi = {
   async create(data: CreateWorkspaceRecordRequest) {
     const formData = new FormData();
@@ -76,7 +89,7 @@ export const workspaceRecordApi = {
     return records;
   },
 
-  async syncFiles(workspaceId: number, env: 'dev' | 'test' | 'prod', files: SyncFileInfo[]) {
+  async syncFiles(workspaceId: number, env: 'dev' | 'test' | 'prod', files: SyncFileInfo[]): Promise<SyncTaskResponse> {
     return request.post(`/workspace-record/sync/${workspaceId}/${env}`, { files });
   },
 }; 

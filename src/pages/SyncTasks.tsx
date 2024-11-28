@@ -9,7 +9,7 @@ import {
   Button,
   Space,
   Tag,
-  Drawer,
+  Modal,
   Descriptions,
   Badge,
   message,
@@ -34,7 +34,7 @@ const SyncTasks: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [detailVisible, setDetailVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [currentDetail, setCurrentDetail] = useState<any>(null);
 
   const fetchData = async (params: any = {}) => {
@@ -68,7 +68,7 @@ const SyncTasks: React.FC = () => {
     try {
       const detail = await getSyncTaskDetail(record.id);
       setCurrentDetail(detail);
-      setDetailVisible(true);
+      setModalVisible(true);
     } catch (error) {
       console.error('获取同步任务详情失败:', error);
     }
@@ -201,11 +201,13 @@ const SyncTasks: React.FC = () => {
         }}
       />
 
-      <Drawer
+      <Modal
         title="同步任务详情"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
         width={800}
-        open={detailVisible}
-        onClose={() => setDetailVisible(false)}
+        style={{ overflow: 'hidden' }}
       >
         {currentDetail && (
           <>
@@ -232,47 +234,59 @@ const SyncTasks: React.FC = () => {
               </Descriptions.Item>
             </Descriptions>
 
-            <Table
-              style={{ marginTop: 16 }}
-              columns={[
-                {
-                  title: '文件名',
-                  dataIndex: 'fileName',
-                },
-                {
-                  title: '路径',
-                  dataIndex: 'filePath',
-                },
-                {
-                  title: '大小',
-                  dataIndex: 'fileSize',
-                  render: (size: number) => `${(size / 1024).toFixed(2)} KB`,
-                },
-                {
-                  title: '更新人',
-                  dataIndex: ['modifier', 'username'],
-                },
-                {
-                  title: '状态',
-                  dataIndex: 'status',
-                  render: (status: string) => (
-                    <Tag color={status === 'success' ? 'success' : 'error'}>
-                      {status === 'success' ? '成功' : '失败'}
-                    </Tag>
-                  ),
-                },
-                {
-                  title: '错误信息',
-                  dataIndex: 'errorMessage',
-                },
-              ]}
-              dataSource={currentDetail.records}
-              rowKey="id"
-              pagination={false}
-            />
+            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+              <Table
+                style={{ marginTop: 16 }}
+                columns={[
+                  {
+                    title: '文件名',
+                    dataIndex: 'fileName',
+                    width: 200,
+                    ellipsis: true,
+                    render: (text: string) => (
+                      <div style={{ whiteSpace: 'normal' }}>{text}</div>
+                    ),
+                  },
+                  {
+                    title: '路径',
+                    dataIndex: 'filePath',
+                    width: 200,
+                    ellipsis: true,
+                    render: (text: string) => (
+                      <div style={{ whiteSpace: 'normal' }}>{text}</div>
+                    ),
+                  },
+                  {
+                    title: '大小',
+                    dataIndex: 'fileSize',
+                    render: (size: number) => `${(size / 1024).toFixed(2)} KB`,
+                  },
+                  {
+                    title: '更新人',
+                    dataIndex: ['modifier', 'username'],
+                  },
+                  {
+                    title: '状态',
+                    dataIndex: 'status',
+                    render: (status: string) => (
+                      <Tag color={status === 'success' ? 'success' : 'error'}>
+                        {status === 'success' ? '成功' : '失败'}
+                      </Tag>
+                    ),
+                  },
+                  {
+                    title: '错误信息',
+                    dataIndex: 'errorMessage',
+                  },
+                ]}
+                dataSource={currentDetail.records}
+                rowKey="id"
+                pagination={false}
+              />
+            </div>
           </>
         )}
-      </Drawer>
+      </Modal>
     </div>
   );
 };
