@@ -49,7 +49,7 @@ function Home({ onCreateWorkspace }: HomeProps) {
               description: '将文件上传到日志服务器',
             },
             {
-              title: '工作区记录',
+              title: '工作区详情',
               description: '选择日志服务器上的数据并进行同步',
             },
           ]}

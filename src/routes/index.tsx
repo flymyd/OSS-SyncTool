@@ -5,7 +5,8 @@ import {
   HomeOutlined,
   SettingOutlined,
   UploadOutlined,
-  UserOutlined
+  UserOutlined,
+  HistoryOutlined
 } from '@ant-design/icons'
 import type {RouteObject} from 'react-router-dom'
 
@@ -15,6 +16,7 @@ const Profile = lazy(() => import('../pages/Profile'))
 const Upload = lazy(() => import('../pages/Upload'))
 const Settings = lazy(() => import('../pages/Settings'))
 const WorkspaceRecord = lazy(() => import('../pages/WorkspaceRecord'))
+const SyncTasks = lazy(() => import('../pages/SyncTasks'))
 
 export type AppRoute = RouteObject & {
     key?: string
@@ -65,8 +67,15 @@ export const createDashboardRoutes = (props: {
             path: 'record',
             key: 'record',
             icon: <FileTextOutlined />,
-            label: '工作区记录',
+            label: '工作区详情',
             element: <WorkspaceRecord />
+        },
+        {
+            path: 'sync-tasks',
+            key: 'sync-tasks',
+            icon: <HistoryOutlined />,
+            label: '同步记录',
+            element: <SyncTasks />
         },
         // {
         //     path: 'profile',
