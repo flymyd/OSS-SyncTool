@@ -123,11 +123,13 @@ const SyncTasks: React.FC = () => {
       key: 'action',
       render: (_: any, record: any) => (
         <Space>
-          <Button type="link" onClick={() => showDetail(record)}>
+          <Button color="primary"
+              variant='outlined' onClick={() => showDetail(record)}>
             查看详情
           </Button>
           <Button 
-            type="link" 
+            color="default"
+            variant='outlined'
             onClick={() => handleExport(record)}
             icon={<DownloadOutlined />}
           >
