@@ -15,12 +15,17 @@ export interface Workspace {
   updatedAt: string;
 }
 
+export interface WorkspaceFilters {
+  name?: string;
+  creatorName?: string;
+}
+
 export const createWorkspace = (data: CreateWorkspaceParams): Promise<Workspace> => {
   return request.post('/workspace', data);
 };
 
-export const getWorkspaces = (): Promise<Workspace[]> => {
-  return request.get('/workspace');
+export const getWorkspaces = (filters?: WorkspaceFilters): Promise<Workspace[]> => {
+  return request.get('/workspace', { params: filters });
 };
 
 export const deleteWorkspace = (id: number): Promise<void> => {
