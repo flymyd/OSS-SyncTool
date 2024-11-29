@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
 import type { WorkspaceResponseDto } from '../types/workspace';
 import type { Workspace } from '../services/workspace';
+import dayjs from 'dayjs';
 
 
 interface WorkspaceListProps {
@@ -68,7 +69,7 @@ function WorkspaceList({ onWorkspaceSelect }: WorkspaceListProps) {
       title: '创建时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text: string) => new Date(text).toLocaleString(),
+      render: (text: string) => dayjs(text).format('YYYY-MM-DD HH:mm:ss'),
     },
     {
       title: '操作',
