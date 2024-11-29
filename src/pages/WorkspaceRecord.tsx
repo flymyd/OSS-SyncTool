@@ -46,7 +46,7 @@ const isImageFile = (fileName: string): boolean => {
 
 const FileCard: React.FC<FileCardProps> = ({ file }) => {
   const isImage = isImageFile(file.name);
-  const previewUrl = isImage && file.id > 0 ? `${API_URL}/workspace-record/preview/${file.id}` : null;
+  const previewUrl = isImage && file.id > 0 ? `${API_URL}/workspace-record/preview/${file.id}?t=${file.modifiedTime}` : null;
 
   const handleDownload = () => {
     if (file.id > 0) {

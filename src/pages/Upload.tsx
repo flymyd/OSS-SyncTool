@@ -169,7 +169,7 @@ function Upload() {
         const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(record.filePath);
         if (!isImage) return null;
         
-        const previewUrl = `${API_URL}/workspace-record/preview/${record.id}`;
+        const previewUrl = `${API_URL}/workspace-record/preview/${record.id}?t=${record.updatedAt}`;
         
         return (
           <Image
