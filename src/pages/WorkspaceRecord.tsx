@@ -20,7 +20,7 @@ interface FileCardProps {
   file: FileInfo
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8965';
+const API_URL = window._env_?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:8965';
 
 // 添加文件大小转换函数
 const formatFileSize = (bytes: number): string => {
@@ -61,7 +61,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
       actions={[
         <Tooltip title="下载文件">
           <DownloadOutlined key="download" onClick={handleDownload} />
-          下载文件（日志服务器版本）
+          <span onClick={handleDownload}>下载文件（日志服务器版本）</span>
         </Tooltip>,
       ].filter(Boolean)}
     >
